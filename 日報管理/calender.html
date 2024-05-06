@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <?!= HtmlService.createHtmlOutputFromFile('reset').getContent(); ?>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+  <?!= HtmlService.createHtmlOutputFromFile('css').getContent(); ?>
+
+  <style>
+    .calendar_master {
+      display: flex;
+      margin: 10px 11px 0 11px;
+      width: calc(100% - 22px);
+      background: #30475E;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 7px;
+    }
+
+    .calendar_master2 {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 5px;
+      width: calc(100% - 10px);
+      background: #FFFFFF;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 7px;
+    }
+
+    .calendar_area {
+      width: 100%;
+      padding: 0 10px 10px 10px;
+    }
+
+    /* ヘッダー（年月とボタン） */
+    div.calendar_header {
+      text-align: center;
+    }
+
+    /* 年月 */
+    .year_month_label {
+      margin: 20px 20px 10px;
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+
+    /* ボタン */
+
+    .calendar_prev_btn_elems {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+    }
+
+    .next_month_btn,
+    .prev_month_btn {
+      background: #30475E;
+      color: #fff;
+      width: 4.2em;
+      height: 2em;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 5px;
+    }
+
+    .next_month_btn {
+      margin: 0 0 0 auto;
+    }
+
+    /* カレンダーテーブル */
+    table.calendar_tbl {
+      width: 100%;
+      margin: 20px auto 0;
+      border: 1px solid;
+      border-collapse: collapse;
+    }
+
+    /* カレンダーテーブルの見出し（曜日） */
+    table.calendar_tbl tr th {
+      text-align: center;
+      border: 1px solid #000;
+    }
+
+    /* カレンダーテーブルの見出し（日曜日） */
+    table.calendar_tbl tr th:first-child {
+      color: #ea266e;
+    }
+
+    /* カレンダーテーブルの見出し（土曜日） */
+    table.calendar_tbl tr th:last-child {
+      color: #2f5eae;
+    }
+
+    /* カレンダーテーブルの日付部分 */
+    table.calendar_tbl tr td {
+      vertical-align: middle;
+      text-align: center;
+      border: 1px solid #000;
+      height: 3em;
+    }
+
+    /* カレンダーテーブルで日付が入らない部分 */
+    table.calendar_tbl tr td.no_date {
+      background-color: #f2f2f2;
+    }
+
+    /* カレンダーテーブルの日付の部分（日曜日） */
+    table.calendar_tbl tr td:first-child {
+      z-index: 10;
+      background-color: #fadbda;
+      color: #ea266e;
+    }
+
+    /* カレンダーテーブルの日付の部分（土曜日） */
+    table.calendar_tbl tr td:last-child {
+      background-color: #ddeeff;
+      color: #2f5eae;
+    }
+
+    /* カレンダ―テーブルの日報を送る事が出来ない日付の部分 */
+    table.calendar_tbl tr td.not_report_date {
+      color: #b0b6b0;
+    }
+
+    /* マウスオーバー時 */
+    table.calendar_tbl tr td.with_date:hover {
+      background-color: #fadfc0;
+    }
+  </style>
+
+  <script>
+    // 曜日の定義
+  const week = ["日", "月", "火", "水", "木", "金", "土"];
+
+  // 今日の日付
+  var today = new Date();
+
+  // 表示用の日付
+  var showDate = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  //社員IDを格納する変数.
+  let g_employeeId = <?= id ?> + "";
+
+  let g_employeeName = <?= name ?> + "";
+
+  // 表示された時
+  window.onload = function () {
+    // カレンダーの表示（引数には表示用の日付を設定）
+    showCalendar(showDate);
+  };
+
+  /**
+   * カレンダーの表示
+   */
+  function showCalendar(date) {
+    // 年
+    var year = date.getFullYear();
+    // 月
+    var month = date.getMonth() + 1;
+
+    // ヘッダーの年月に表示する文字列
+    var showDateStr = year + "年 " + month + "月";
+
+    // ヘッダーの年月部分に埋め込み
+    $('.year_month_label').text(showDateStr);
+
+    // カレンダーテーブルを作成する（HTMLが返却される）
+    var calendarTable = createCalendarTable(year, month);
+
+    // カレンダー表示部分に埋め込み
+    $('.calendar_body').html(calendarTable);
+  }
+
+  /**
+   * カレンダーテーブルの作成
+   */
+  function createCalendarTable(year, month) {
+    // HTML用の変数
+    var _html = '';
+
+    // tableタグ
+    _html += '<table class="calendar_tbl">';
+
+    // テーブルのヘッダー（曜日）
+    _html += '<tr>';
+    for (var i = 0; i < week.length; i++) {
+      _html += "<th>" + week[i] + "</th>";
+    }
+    _html += '</tr>';
+
+    // ---------------------
+
+    // 表示するカレンダー年月の1日の曜日を取得
+    var startDayOfWeek = new Date(year, month - 1, 1).getDay();
+
+    // 日付
+    var countDay = 0;
+
+    // 月の末日
+    var monthOfEndDay = new Date(year, month, 0).getDate()
+
+    // 五日前の日付を計算
+    var fiveDaysAgo = new Date(today);
+    fiveDaysAgo.setDate(today.getDate() - 5);
+
+    // それぞれの日付を文字列に変換
+    var todayString = formatDate(today);
+    var fiveDaysAgoString = formatDate(fiveDaysAgo);
+
+    //getdate()-5としたら、前年度の情報が出てくる。つまり…
+
+    // 6行分繰り返し
+    for (var i = 0; i < 6; i++) {
+      _html += '<tr>';
+
+      // 7列（曜日の数）分繰り返し
+      for (var j = 0; j < week.length; j++) {
+        // １行目で開始曜日と同じ場合
+        if (i == 0 && j == startDayOfWeek) {
+          // 日付+1
+          countDay++;
+          //現在作成中の日付を文字列に変換.
+          let currentDay = year + "-" + padZero(parseInt(month)) + "-" + padZero(parseInt(countDay));
+
+          if ( fiveDaysAgoString <= currentDay && currentDay <= todayString ) {
+            // tdタグ（日付有りが分かるようにクラス属性に"with_date"を設定）
+            _html += '<td class="with_date"><a class="calendar_text" href="' + "<?=getScriptUrl()?>?p=report&name=" + g_employeeName + "&id=" + g_employeeId + "&date=" + currentDay + '">' + countDay + '</a></td>';
+          } else {
+            // tdタグ（日付有りが分かるようにクラス属性に"with_date"を設定）
+            _html += '<td class="not_report_date"><p class="calendar_text" >' + countDay + '</p></td>';
+          }
+        }
+        // 日付が0以外で、日付が末日より小さい場合
+        else if (countDay != 0 && countDay < monthOfEndDay) {
+          // 日付+1
+          countDay++;
+          //現在作成中の日付を文字列に変換.
+          let currentDay = year + "-" + padZero(parseInt(month)) + "-" + padZero(parseInt(countDay));
+
+          if ( fiveDaysAgoString <= currentDay && currentDay <= todayString ) {
+            // tdタグ（日付有りが分かるようにクラス属性に"with_date"を設定）
+            _html += '<td class="with_date"><a class="calendar_text" href="' + "<?=getScriptUrl()?>?p=report&name=" + g_employeeName + "&id=" + g_employeeId + "&date=" + currentDay + '">' + countDay + '</a></td>';
+          } else {
+            // tdタグ（日付有りが分かるようにクラス属性に"with_date"を設定）
+            _html += '<td class="not_report_date"><p class="calendar_text" >' + countDay + '</p></td>';
+          }
+        }
+        else {
+          // tdタグ（日付無しが分かるようにクラス属性に"no_date"を設定）
+          _html += '<td class="no_date"></td>';
+        }
+      }
+      _html += '</tr>';
+    }
+    _html += '</table>';
+
+    // 組み立てたHTMLを返却
+    return _html;
+  }
+
+
+  // 日付を "YYYY-MM-DD" 形式の文字列にフォーマットする関数
+function formatDate(date) {
+  var year = date.getFullYear();
+  var month = padZero(date.getMonth() + 1); // 月は0から始まるため+1する
+  var day = padZero(date.getDate());
+
+  return year + "-" + month + "-" + day;
+}
+
+// 一桁の月や日をゼロでパディングする関数
+function padZero(num) {
+  return num < 10 ? "0" + num : num;
+}
+
+  // 前月
+  function prev_month() {
+    var today = new Date();
+
+    if( today.getMonth() == showDate.getMonth() ){
+      // 表示用の日付の月-1を設定
+      showDate.setMonth(showDate.getMonth() - 1);
+      // カレンダーの表示（引数には表示用の日付を設定）
+      showCalendar(showDate);
+    }
+  }
+
+  // 来月
+  function next_month() {
+
+    var today = new Date();
+
+    if( today.getMonth()-1 == showDate.getMonth() ){
+      // 表示用の日付の月+1を設定
+      showDate.setMonth(showDate.getMonth() + 1);
+      // カレンダーの表示（引数には表示用の日付を設定）
+      showCalendar(showDate);
+
+    //12月➤1月の遷移を可能にさせる為の条件文.
+    } else if ( today.getMonth()-1 == -1 && showDate.getMonth() == 11 ){
+      showDate.setMonth(showDate.getMonth() + 1);
+      showCalendar(showDate);
+    }
+  }
+
+  </script>
+</head>
+
+<body>
+
+  <header class="roginHeader">
+    <p class="roginTitle">
+      日報入力日時選択
+    </p>
+    <a href="<?=getScriptUrl()?>" class="logoutBtnBg" style="margin:0;">
+      <p class="logoutText">ログアウト</p>
+      <svg xmlns="http://www.w3.org/2000/svg" width="33" height="33" viewBox="0 0 37 37" fill="none">
+        <path
+          d="M25.5714 2H6.71429C5.46398 2 4.26488 2.38631 3.38078 3.07394C2.49668 3.76158 2 4.69421 2 5.66667V31.3333C2 32.3058 2.49668 33.2384 3.38078 33.9261C4.26488 34.6137 5.46398 35 6.71429 35H25.5714M35 18.5L25.5714 11.1667M35 18.5L25.5714 25.8333M35 18.5H11.4286"
+          stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </a>
+  </header>
+  <div class="calendar_master">
+    <div class="calendar_master2">
+      <div class="calendar_area">
+        <div class="calendar_header">
+          <p class="year_month_label"></p>
+          <div class="calendar_prev_btn_elems">
+            <button class="prev_month_btn" onClick="prev_month()"><i class="fas fa-angle-left"></i></button>
+            <button class="next_month_btn" onClick="next_month()"><i class="fas fa-angle-right"></i></button>
+          </div>
+        </div>
+        <div class="calendar_body"></div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

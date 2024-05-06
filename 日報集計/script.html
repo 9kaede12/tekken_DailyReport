@@ -1,0 +1,349 @@
+<script>
+    // 社員情報を格納する配列
+    let g_worker_info = null
+    // 休憩時間
+    let g_break_times = null
+    // 勤務形態
+    let g_working_style = null
+
+    // [社員ID、社員名]
+    let g_pair_worker_id_name = new Map()
+
+    // 選択された日付を格納
+    let g_selected_date = new Date()
+
+    let g_daily_report = null
+
+    let g_slip_number = 0;
+
+    // 待機関数
+    function wait(msec) {
+      return new Promise(resolve => setTimeout(resolve, msec))
+    }
+
+    // シート情報を受け取る関数.
+    document.addEventListener('DOMContentLoaded', async () => {
+      // ローディング画面を表示する
+      document.getElementById("loading_text").textContent = "読み込み中・・・"
+      document.getElementById("page_loading").style.display = "block"
+
+      // セマフォ
+      let loaded_flags = [false, false, false, false]
+
+      google.script.run.withSuccessHandler((result) => {
+        g_worker_info = result
+        loaded_flags[0] = true
+      }).getSheetValues("社員情報")
+      google.script.run.withSuccessHandler((result) => {
+        g_break_times = result
+        loaded_flags[1] = true
+      }).getSheetValues("休憩時間")
+      google.script.run.withSuccessHandler((result) => {
+        g_working_style = result
+        loaded_flags[2] = true
+      }).getSheetValues("勤務形態")
+      google.script.run.withSuccessHandler((result) => {
+        g_slip_number = result
+        loaded_flags[3] = true
+      }).getSheetValues("伝票番号")
+
+      //読み込みが完了し、全ての表取得関数が達成されたらループを抜ける.
+      while(g_worker_info == null || g_break_times == null || g_working_style == null){
+        await wait(100)
+      }
+      // 読込みが完了したらループを抜ける
+      while (loaded_flags.some((v) => v == false)){
+         await wait(100)
+      }
+
+      // 行頭のヘッダーを消し去る
+      g_worker_info.shift()
+      g_break_times.shift()
+      g_working_style.shift()
+      g_slip_number.shift()
+
+      // 社員IDと社員名を紐付け
+      g_pair_worker_id_name = new Map()
+      for (const worker_info of g_worker_info) {
+        let worker_id = worker_info[0] +"";
+        let worker_name = worker_info[1]
+        g_pair_worker_id_name.set(worker_id, worker_name)
+      }
+
+      let today = new Date()
+
+
+
+      // 日付入力設定
+      let dateInput = document.getElementById('selected_date')
+
+      const month = today.getMonth() + 1 < 10 ? '0' + (today.getMonth() + 1) : today.getMonth() + 1;
+      const day = today.getDate() < 10 ? '0' + today.getDate() : today.getDate();
+      $("#selected_date").val(today.getFullYear() + "-" + month + "-" + day);
+
+      g_selected_date = new Date(today.getFullYear() +"-"+ (today.getMonth() + 1) +"-"+ today.getDate())
+      dateInput.addEventListener("input", (e) => {
+        g_selected_date = new Date(e.target.value)
+        console.log(`日付をセットしました: ${g_selected_date}`)
+        setDailyReportSheet(g_selected_date)
+      })
+      // 今月のシートを初期読み込み
+      g_daily_report = setDailyReportSheet(new Date())
+
+      //ローディング画面を外す.
+      document.getElementById("loading_text").textContent = "読み込み完了"
+      await wait(900)
+      document.getElementById("page_loading").style.display = "none"
+    });
+
+    // クリック重複防止が必要
+    function outputCSVButtonClicked() {
+      if (g_daily_report == null) return
+      let outputCSVButton = document.getElementById('btn_output_csv')
+      console.log(g_selected_date)
+
+      function startLoading() {
+        outputCSVButton.style.pointerEvents = "none"
+        outputCSVButton.textContent = "処理中・・・"
+      }
+
+      function finishLoading() {
+        outputCSVButton.style.pointerEvents = "auto"
+        outputCSVButton.textContent = "CSV出力"
+      }
+
+      startLoading()
+
+      try {
+        // CSVファイル名
+        let file_name = `鐵建日報集計_${g_selected_date.getFullYear()}年${g_selected_date.getMonth() + 1}月${g_selected_date.getDate()}日`
+        // CSVダウンロードを実行
+        let csvText = writeCSVData();
+        if ( writeCSVData() ) {
+          downloadCSV(csvText, file_name)
+        }
+      } catch (e) {
+        console.error(e.message)
+        finishLoading()
+      }
+
+      finishLoading()
+    }
+
+    function writeCSVData() {
+      let csv_text = ""
+      let daily_report = null
+      // 伝票のメインデータ
+      let receipt_data = []
+      // 伝票の総計データ
+      let receipt_total = { fixed: 0, normal: 0, late: 0, all: 0}
+
+      let year = g_selected_date.getFullYear()
+      let month = g_selected_date.getMonth() + 1
+      let date = g_selected_date.getDate()
+
+      // その日の日報データのみで絞り込み
+      try {
+        daily_report = g_daily_report.filter((row) => {
+          let rowDate = new Date(row[10])
+          let rowYear = rowDate.getFullYear()
+          let rowMonth = rowDate.getMonth() + 1
+          let rowDateOfMonth = rowDate.getDate()
+          return rowYear == year && rowMonth == month && rowDateOfMonth == date
+        })
+      } catch (e) {
+        console.error(e.message)
+      }
+
+      //日報データが無い場合、スキップ.
+      if ( daily_report.length == 0 ) {
+        failedText("この日に該当する日報が無いようです・・・");
+        return false;
+      }
+
+      //(開始時間,終了時間,休憩時間)から、休憩時間を含めない総労働時間を返す(int型)関数.
+      function totalWorkingCalc(workStartMinutes, workEndMinutes, breakTime) {
+
+        // 休憩時間を含む総労働時間を計算.
+        let totalWorkMinutes = workEndMinutes - workStartMinutes;
+
+        for (let i = 1; i < breakTime.length; ++i) {
+          const breakStartMinutes = timeCalc(breakTime[i][0]);
+          //開始時間が休憩の開始時間以上かつ、終了時間より小さい場合.
+          if ( workStartMinutes <= breakStartMinutes && breakStartMinutes < workEndMinutes) {
+            totalWorkMinutes -= parseInt(breakTime[i][1]);
+          }
+        }
+        return totalWorkMinutes;
+      }
+
+      // 時間(〇〇:〇〇)の形式を入れられたら、分で返す関数.
+      function timeCalc(timeStr) {
+        const timeParts = timeStr.split(":");
+
+        let minutes = 0;
+
+        // 翌日の入力が入っていた場合　1440分を加算.
+        if (timeParts[0].indexOf("翌") != -1) {
+          let tmp = timeParts[0].slice(1);
+          // 時間を分に変換.
+          minutes = parseInt(tmp) * 60 + parseInt(timeParts[1]) + 1440;
+        } else {
+          minutes = parseInt(timeParts[0]) * 60 + parseInt(timeParts[1]);
+        }
+
+        return minutes;
+      }
+
+      try {
+        let id = 1
+
+        // 労働時間を計算しながら1行ずつ処理
+        daily_report.forEach((row) => {
+          const work_start_minutes = timeCalc(row[1])
+          const work_end_minutes = timeCalc(row[2])
+
+          let work_hours = []
+          // receipt_data に突っ込んでいく
+          for (const working_style_row of g_working_style) {
+            let start_minutes = timeCalc(working_style_row[1])
+            let end_minutes = timeCalc(working_style_row[2])
+
+            // 一時的に終了・開始時間を入れる為の変数.
+            let tmp_end_minutes = 0;
+            let tmp_start_minutes = 0;
+
+            // 区分範囲内の正しい終了時間を設定.
+            if ( start_minutes <= work_start_minutes && work_start_minutes < end_minutes ) {
+              tmp_start_minutes = work_start_minutes
+
+            } else if ( work_start_minutes <= start_minutes ) {
+              tmp_start_minutes = start_minutes
+
+            } else if ( end_minutes < work_start_minutes ) {
+              work_hours.push(0)
+              continue;
+            }
+
+            if ( start_minutes < work_end_minutes && work_end_minutes <= end_minutes) {
+              tmp_end_minutes = work_end_minutes
+            } else if ( end_minutes <= work_end_minutes ) {
+              tmp_end_minutes = end_minutes
+            } else if ( work_end_minutes < end_minutes ) {
+              work_hours.push(0)
+              continue;
+            }
+
+            const minutes = totalWorkingCalc(tmp_start_minutes, tmp_end_minutes, g_break_times)
+            const hours = minutes < 30 ? 0.0 : Math.floor(minutes / 60) + (minutes % 60 < 30 ? 0.0 : 0.5)
+            work_hours.push(hours)
+          }
+
+          const total_work_hours = work_hours[1]+work_hours[2]+work_hours[3];
+          //work_hours.reduce((s, e) => s + e, 0) 全要素を足すならこれ.
+
+
+          //現状は定時、普通、深夜のみを記述している。
+          const result =
+            [`\"${g_slip_number[0]}\"`, `\"\"`, `\"${year}年${String(month).padStart(2, '0')}月${String(date).padStart(2, '0')}日\"`, `\"平日\"`, `\"\"`, `\"\"`, `\"${id}\"`
+            , `\"${row[4]}\"`, `\"${row[8]}\"`, `\"${row[0]}\"`, `\"${g_pair_worker_id_name.get(row[0])}\"`, `\"${row[3]}\"`, `\"${row[9]}\"`
+            , `\"${work_hours[1]}\"`, `\"${work_hours[2]}\"`, `\"${work_hours[3]}\"`, `\"${total_work_hours}\"`]
+
+          receipt_data.push(result)
+          id += 1
+
+        })
+      } catch (e) {
+        console.error(e.message)
+      }
+
+      // 総労働時間を算出
+      receipt_data.forEach((row) => {
+        receipt_total.fixed += Number(row[13].replace(/\"/g, ""))
+        receipt_total.normal += Number(row[14].replace(/\"/g, ""))
+        receipt_total.late += Number(row[15].replace(/\"/g, ""))
+        receipt_total.all += Number(row[16].replace(/\"/g, ""))
+      })
+
+      // ヘッダー定義
+      let header_first = `\"伝票番号\",\"\",\"年月日\",\"区分\",\"摘要\",\"定時\",\"普通\",\"深夜\",\"合計\",\"労務費マスター\"\n`
+      let header_second = `\"${g_slip_number}\",\"\",\"${year}年${String(month).padStart(2, '0')}月${String(date).padStart(2, '0')}日\",\"平日\",\"\",\"${receipt_total.fixed}\",\"${receipt_total.normal}\",\"${receipt_total.late}\",\"${receipt_total.all}\"\n`
+      let header_third = `\"伝票番号\",\"\",\"年月日\",\"区分\",\"労務費マスター\",\"摘要\",\"行No\",\"工事番号\",\"工事名\",\"作業者コード\",\"作業者\",\"作業コード\",\"作業\",\"定時\",\"普通\",\"深夜\",\"計\"\n`
+
+      // csv_textに順に合成
+      csv_text += header_first
+      csv_text += header_second
+      csv_text += header_third
+      for (row of receipt_data) {
+        csv_text += `${row.join(',')}\n`
+      }
+      csv_text += `\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"${receipt_total.fixed}\",\"${receipt_total.normal}\",\"${receipt_total.late}\",\"${receipt_total.all}\"`
+
+      return csv_text
+    }
+
+    function downloadCSV(csv_text, file_name) {
+      const bom = new Uint8Array([0xef, 0xbb, 0xbf])
+      let blob =new Blob([bom, csv_text],{type:"text/csv;charset=utf-8;"})
+      let link =document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = `${file_name}.csv`
+      link.click();
+      google.script.run.withSuccessHandler((result) => {
+        if ( result ) {
+          ++g_slip_number;
+        } else {
+          alert("処理に失敗しました。もう一度お願いします");
+          failedText( "伝票番号の更新に失敗しました・・・" )
+        }
+      }).slipNumberChenge(g_slip_number)
+    }
+
+    function setDailyReportSheet(date) {
+      let outputCSVButton = document.getElementById('btn_output_csv')
+      outputCSVButton.textContent = "処理中・・・";
+      // 年月をもとに日報データシートを読み込む
+      try {
+        google.script.run.withSuccessHandler((sheet) => {
+          if (sheet == null || Object.keys(sheet).length === 0) {
+            console.log("この月のシートは存在しません")
+            console.log(sheet)
+            g_daily_report = null
+            outputCSVButton.disabled = true
+            return
+          }
+          console.log("シートの読み込みに成功")
+          sheet.shift()
+          g_daily_report = sheet
+          outputCSVButton.disabled = false
+          outputCSVButton.textContent = "CSV出力";
+        }).getSheetAtYearMonth(date.getFullYear(), date.getMonth() + 1)
+      } catch (e) {
+        console.error(`シートの読み込みに失敗しました: ${e.message}`)
+        failedText( "日報シートの読み込みに失敗しました" )
+        g_daily_report = null
+        outputCSVButton.disabled = true
+      }
+    }
+
+    function failedText( alerttext ) {
+      $('#failedText').text( alerttext );
+      //エラーメッセージのremoveクラスがあったら取り外す.
+      if ($('#failedText').hasClass('remove')) {
+        $('#failedText').toggleClass('remove');
+      }
+      if (!$("#failedText").hasClass("active")) {
+        $('#failedText').toggleClass('active'); //エラーメッセージをフェードイン表示させる為に、activeクラスを付ける.
+      } else {
+        //既にactiveクラスがついていたらスキップ.
+        return;
+      }
+      //三秒後にアラートメッセージをフェードアウトさせる.
+      window.setTimeout(() => {
+        $('#failedText').toggleClass('active');
+        $('#failedText').toggleClass('remove');
+        $('#failedText').text("");
+      }, 3000);
+    }
+
+  </script>

@@ -1,0 +1,296 @@
+<style>
+    * {
+      padding: 0;
+      margin: 0;
+    }
+
+    .body {
+      overflow-x: hidden;
+      padding: 0px;
+    }
+
+    /*ローディングスタイル作成ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー*/
+    #page_loading {
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      background: #464646de;
+      color: #fff;
+      z-index: 999;
+      backdrop-filter: blur(5px);
+    }
+
+    .wrapper {
+      width: 200px;
+      height: 60px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .circle {
+      width: 20px;
+      height: 20px;
+      position: absolute;
+      border-radius: 50%;
+      background-color: #fff;
+      left: 15%;
+      transform-origin: 50%;
+      animation: circle .5s alternate infinite ease;
+    }
+
+    @keyframes circle {
+      0% {
+        top: 60px;
+        height: 5px;
+        border-radius: 50px 50px 25px 25px;
+        transform: scaleX(1.7);
+      }
+
+      40% {
+        height: 20px;
+        border-radius: 50%;
+        ansform: scaleX(1);
+      }
+
+      100% {
+        top: 0%;
+      }
+    }
+
+    .circle:nth-child(2) {
+      left: 45%;
+      animation-delay: .2s;
+    }
+
+    .circle:nth-child(3) {
+      left: auto;
+      right: 15%;
+      animation-delay: .3s;
+    }
+
+    .shadow {
+      width: 20px;
+      height: 4px;
+      border-radius: 50%;
+      background-color: rgba(0, 0, 0, .5);
+      position: absolute;
+      top: 62px;
+      transform-origin: 50%;
+      z-index: -1;
+      left: 15%;
+      filter: blur(1px);
+      animation: shadow .5s alternate infinite ease;
+    }
+
+    @keyframes shadow {
+      0% {
+        transform: scaleX(1.5);
+      }
+
+      40% {
+        transform: scaleX(1);
+        opacity: .7;
+      }
+
+      100% {
+        transform: scaleX(.2);
+        opacity: .4;
+      }
+    }
+
+    .shadow:nth-child(4) {
+      left: 45%;
+      animation-delay: .2s
+    }
+
+    .shadow:nth-child(5) {
+      left: auto;
+      right: 15%;
+      animation-delay: .3s;
+    }
+
+    .wrapper span {
+      position: absolute;
+      top: 75px;
+      font-family: 'Lato';
+      font-size: 20px;
+      color: #fff;
+      left: 15%;
+    }
+
+    /*ローディングスタイル作成終了ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー*/
+
+    /* コンテンツ要素作成 */
+
+    .contentBackground {
+      background-color: #222831;
+      /* 背景色を変更 */
+      width: 100vw;
+      /* 横幅を画面いっぱいに表示 */
+      height: 100vh;
+      /* 縦幅を画面いっぱいに表示 */
+    }
+
+    .content {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      /* absoluteからのtransformで、上下左右中央揃えに */
+      width: 100%;
+      height: auto;
+      /* 縦幅を可変出来る様に */
+      display: flex;
+      /* 要素を重ねて表示できるよう */
+      flex-direction: column;
+      /* 要素を上から順番に並べる様に */
+    }
+
+    /* ヘッダー作成 */
+
+    .titleHeader {
+      width: 100%;
+      background-color: #222831;
+      display: flex;
+      padding: 15px 0px;
+      /* 要素の内側に上下15pxの余白を設ける */
+    }
+
+    .titleHeaderText {
+      color: #fff;
+      margin: auto;
+      font-size: 1.5em;
+      /* フォントのサイズをemを使い、画面サイズごとに適切なサイズに */
+      font-family: serif;
+      /* フォントのスタイルをserifに */
+      font-weight: bold;
+      /* フォントの太さをboldに */
+      letter-spacing: .1em;
+      /* 文字と文字のスペースを設定 */
+    }
+
+    /* ヘッダー作成終了 */
+
+    /* 入力画面の親要素作成 */
+
+    .csvDateDiv {
+      display: flex;
+      flex-direction: column;
+      width: calc(100vw - 5em);
+      height: auto;
+      margin: 0 2.5em;
+      border-radius: 7px;
+      padding: 1.4em 0;
+      background: #fff;
+    }
+
+    /* 入力画面の親要素作成終了 */
+
+    /* date入力スタイル作成 */
+
+    //labelタグ
+    .date-edit {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    //ボックス部分
+    input[type="date"] {
+      font-size: 2em;
+      padding: 10px 1.8em;
+      text-align: center;
+      border: 2px solid #000;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    }
+
+    input[type="date"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+
+    input[type="date"]::-webkit-clear-button {
+      -webkit-appearance: none;
+    }
+
+    /* date入力スタイル作成終了 */
+    /* CSV出力ボタン作成 */
+
+    .csvOutputBtn {
+      border: 4px solid #05BFDB;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 3px;
+      font-family: Serif;
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      font-weight: 600;
+      font-size: 1.8em;
+      margin: 0.8em 0.4em 0 0.4em;
+      padding: 5px;
+      color: #05BFDB;
+      background: #fff;
+    }
+
+    /* CSV出力ボタン作成終了 */
+
+    /* CSV出力不能エラーテキスト作成 */
+
+    #failedText {
+      display: none;
+      /* 要素を見えなくする */
+    }
+
+    #failedText.active {
+      font-family: Serif;
+      font-weight: 400;
+      font-size: 1.1em;
+      padding: 10px;
+      color: red;
+      display: flex;
+      animation-name: fadeInAnime;
+      /* フェードインを0.5sの秒数で実装 */
+      animation-duration: 0.5s;
+      animation-fill-mode: forwards;
+      opacity: 0;
+    }
+
+    #failedText.remove {
+      font-family: Serif;
+      font-weight: 400;
+      font-size: 1.1em;
+      padding: 10px;
+      color: red;
+      display: flex;
+      animation-name: fadeOutAnime;
+      /* フェードアウトを0.5の秒数で実装 */
+      animation-duration: 0.5s;
+      animation-fill-mode: forwards;
+      opacity: 1;
+    }
+
+    @keyframes fadeInAnime {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeOutAnime {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
+    }
+
+      /* CSV出力不能エラーテキスト作成終了 */
+  </style>

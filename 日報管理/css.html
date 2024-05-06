@@ -1,0 +1,1189 @@
+<style>
+    .body {
+      overflow-x: hidden;
+      padding: 0px;
+    }
+
+    html, body, iframe#sandboxFrame, .full_size {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    .html {
+      overflow-x: hidden;
+    }
+
+    /* ログイン画面 */
+
+    .roginMenu {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .roginHeader {
+      width: 100%;
+      background-color: #222831;
+      display: flex;
+      padding: 15px 10px;
+    }
+
+    .roginTitle {
+      color: #fff;
+      margin: auto;
+      font-size: 25px;
+      font-family: serif;
+      font-weight: bold;
+      letter-spacing: .1em;
+
+    }
+
+    /* メイン */
+    #roginBg1 {
+      width: calc(100% - 20px);
+      margin: 10px;
+      height: auto;
+      background: #30475E;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 7px;
+    }
+
+    .roginBg2 {
+      background-color: #fff;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 5px;
+      width: calc(100% - 10px);
+      /* 横マージンを考慮した最大幅 */
+      background: #FFFFFF;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 7px;
+    }
+
+    .elm3 {
+      height: 99%;
+      font-size: 120%;
+      display: flex;
+      justify-content: center;
+      margin-top: 25px;
+    }
+
+    #order_submit_logout {
+      font-size: 30px;
+      padding: 10px 40px;
+      border-radius: 10px;
+      background: #f81717;
+      color: #fff;
+      border: none;
+      text-decoration: none;
+      text-align: center;
+      display: block;
+      margin-top: 40px;
+    }
+
+    #main {
+      width: calc(100%);
+    }
+
+    #login_form {
+      background: #404040;
+      height: 100%;
+    }
+
+    .nameInfo {
+      margin: 10px;
+      color: #30475E;
+      font-size: 17px;
+      font-weight: bold;
+      letter-spacing: .1em;
+    }
+
+    /* ログインフォーム 氏名選択 */
+
+    #select_initials {
+      margin: 0px 10px;
+    }
+
+    #select_name {
+      width: 100%;
+      height: auto;
+    }
+
+    #select_name div div {
+      border: solid 1px;
+      text-align: center;
+      width: 10%;
+      cursor: pointer;
+      padding: 10px 0px;
+    }
+
+    #select_name div div:hover {
+      background-color: #d7d7d7;
+    }
+
+    /* 氏名入力box */
+    #name_input {
+      margin: 10px 10px 0px 10px;
+      padding: 10px 0px;
+      background: #ffffff82;
+      border: 1px solid #000000;
+      font-weight: 400;
+      font-size: 25px;
+      width: 100%;
+      height: 40px;
+      text-indent: 6px;
+    }
+
+    #name_input:focus {
+      outline: none;
+    }
+
+    /* ログインフォーム氏名入力下のサジェスト関連 */
+    #name_suggest {
+      margin: 0px 10px 10px 10px;
+      background-color: #f9f9f9;
+      border: solid 1px;
+      border-top: none;
+      border-bottom-right-radius: 10px;
+      border-bottom-left-radius: 10px;
+      padding-bottom: 6px;
+      height: 500px;
+      overflow-y: scroll;
+    }
+
+    #name_suggest p {
+      cursor: pointer;
+      padding: 2px 6px;
+      font-size: 1.2em;
+    }
+
+    #name_suggest p:hover {
+      background-color: #d7d7d7;
+    }
+
+    /* 氏名入力inputタグの横のデリートボタン */
+    #name_input_back_delete {
+      display: none;
+      width: 50px;
+      height: 40px;
+      margin: 10px 10px 10px 0px;
+      background: #fff;
+      border: solid 1px;
+      border-left: none;
+      border-right: 1px solid;
+      border-bottom-color: #666;
+      cursor: pointer;
+      background: #fff;
+      ;
+    }
+
+    #order_form {
+      height: 100%;
+    }
+
+    /* ログインの確認画面 */
+    #login_confirm {
+      margin: 10px;
+      display: none;
+      background: #30475E;
+      width: calc(100% - 20px);
+      height: auto;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 3px;
+    }
+
+    .loginConfirmBg {
+      background-color: #fff;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 5px;
+      width: calc(100% - 10px);
+      /* 横マージンを考慮した最大幅 */
+      background: #FFFFFF;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 7px;
+    }
+
+    .loginConfirmTitle {
+      color: #30475E;
+      font-size: 25px;
+      font-weight: bold;
+      letter-spacing: .15em;
+    }
+
+    .loginConfirmBtnGroup {
+      display: flex;
+      flex-direction: row;
+      width: calc(100% - 20px);
+      margin: 10px;
+      background: #fff;
+      align-items: center;
+      text-align: center;
+    }
+
+    .login_confirm_btn1 {
+      width: 45%;
+      height: auto;
+      background: #30475E;
+      border: 8px solid #30475E;
+      box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 4px;
+      cursor: pointer;
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      /* 表示する行数を指定 */
+      -webkit-box-orient: vertical;
+    }
+
+    .login_confirm_btn2 {
+      font-size: 25px;
+      font-weight: 400;
+      width: 45%;
+      height: auto;
+      background: #F86D17;
+      border: 8px solid #F86D17;
+      margin: 0 0 0 auto;
+      box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .backBtnText {
+      font-weight: 400;
+      font-size: 25px;
+      color: #000000;
+    }
+
+    #loginConfirmName {
+      font-size: 40px;
+    }
+
+    #loginConfirmId {
+      font-size: 17px;
+    }
+
+
+    /* 日報画面 */
+
+    .reportHeader {
+      display: flex;
+      flex-direction: row;
+      padding: 11px;
+      background: #222831;
+      border: 1px solid #000000;
+      width: 100%;
+    }
+
+    .employeeInfoDiv {
+      display: flex;
+      margin: 0px auto 0px 0px;
+      height: 45px;
+      text-align: center;
+      align-items: center;
+    }
+
+    .employeeId {
+      color: white;
+      font-size: .9em;
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+    }
+
+    .employeeName {
+      color: white;
+      font-size: 1.2em;
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+    }
+
+    .logoutBtnBg {
+      display: flex;
+      flex-direction: row;
+      text-align: center;
+      width: 150px;
+      height: 45px;
+      margin: 0 0 0 auto;
+      background: #F05454;
+      border: 1px solid #000000;
+      box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 7px;
+      text-align: center;
+      align-items: center;
+    }
+
+    .logoutText {
+      margin-left: 5px;
+      margin-top: 12px;
+      font-family: 'Noto Serif';
+      font-style: normal;
+      font-weight: 400;
+      font-size: 21px;
+      width: 105px;
+      height: 33px;
+      color: #FFFFFF;
+    }
+
+    /*カレンダースタイル作成ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー*/
+
+    .carendar_bg_1 {
+      display: flex;
+      margin: 10px 11px 0 11px;
+      width: calc(100% - 22px);
+      /* 横マージンを考慮した最大幅 */
+      height: 596px;
+      background: #30475E;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 7px;
+    }
+
+    .carendar_bg_2 {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 5px;
+      width: calc(100% - 10px);
+      /* 横マージンを考慮した最大幅 */
+      background: #FFFFFF;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 7px;
+    }
+
+    /*カレンダー情報作成ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー*/
+
+    .carendar_info_bg {
+      display: flex;
+      flex-direction: row;
+      height: 5%;
+      margin: 5px;
+      width: calc(100% - 10px);
+      /* 横マージンを考慮した最大幅 */
+      background-color: #fff;
+    }
+
+    .carendar_date_wiget {
+      font-family: serif;
+      max-width: 100%;
+      height: 26px;
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 400;
+      font-size: 18px;
+      line-height: 24px;
+      color: #52616B;
+      margin: 0 auto;
+    }
+
+    #work_report {
+      height: 95%;
+      margin: 5px;
+      width: calc(100% - 10px);
+      /* 横マージンを考慮した最大幅 */
+      background-color: #fff;
+      overflow-y: scroll;
+      padding: 10px;
+    }
+
+    .calendar_text {
+      display: block;
+      width: 100%;
+      height: 100%;
+      padding: 15px 0;
+    }
+
+
+    /*カレンダー情報作成終了ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー*/
+
+    /*カレンダースタイル作成終了ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー*/
+
+    /*日報編集ボタンスタイル作成ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー*/
+
+    .edit_btn_bg_1 {
+      display: flex;
+      width: calc(100% - 22px);
+      /* 横マージンを考慮した最大幅 */
+      margin: 10px 11px 0 11px;
+      background: #30475E;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 7px;
+      cursor: pointer;
+    }
+
+    .edit_btn_bg_2 {
+      width: calc(100% - 10px);
+      /* 横マージンを考慮した最大幅 */
+      margin: 5px;
+      background: #FFFFFF;
+      border: 4px solid #05BFDB;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 7px;
+      display: flex;
+    }
+
+    .edit_btn_bg_3 {
+      margin: auto;
+      flex-direction: row;
+      display: flex;
+    }
+
+    .edit_text {
+      font-family: Serif;
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      /* 表示する行数を指定 */
+      -webkit-box-orient: vertical;
+      font-weight: 400;
+      font-size: 38px;
+      margin: auto;
+      padding: 10px;
+      color: #05BFDB;
+    }
+
+
+    /*日報編集ボタンスタイル作成終了ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー*/
+
+    /*日報送信ボタンスタイル作成ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー*/
+
+    .send_btn_bg_1 {
+      width: calc(100% - 22px);
+      /* 横マージンを考慮した最大幅 */
+      display: flex;
+      background: #30475E;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 7px;
+      margin: 10px 11px 6px 11px;
+      cursor: pointer;
+    }
+
+    .send_btn_bg_2 {
+      width: calc(100% - 10px);
+      /* 横マージンを考慮した最大幅 */
+      ;
+      margin: 5px;
+      background: #FFFFFF;
+      border: 4px solid #F05454;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 7px;
+      display: flex;
+    }
+
+    .send_btn_text {
+      font-family: Serif;
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      /* 表示する行数を指定 */
+      -webkit-box-orient: vertical;
+      font-weight: 400;
+      font-size: 38px;
+      color: #F05454;
+      margin: auto;
+      padding: 10px;
+    }
+
+    /*日報送信ボタンスタイル作成終了ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー*/
+
+
+    /*モーダルウインドスタイル作成ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー*/
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      width: 90%;
+      box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2), 0 7px 20px 0 rgba(0, 0, 0, 0.17);
+      animation-name: modalopen;
+      animation-duration: 0.1s;
+      border-radius: 7px;
+    }
+
+    @keyframes modalopen {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    .modal-header p {
+      margin: 1rem 0;
+      font-size: 1.6em;
+    }
+
+    .modal-header {
+      background: #222831;
+      color: #fff;
+      font-weight: 700;
+      font-size: 17px;
+      padding: 3px 15px;
+      display: flex;
+      justify-content: space-between;
+      border-top-left-radius: 7px;
+      border-top-right-radius: 7px
+    }
+
+    .modal-body {
+      padding: 10px 15px;
+      color: black;
+    }
+
+
+    //確認メッセージや日報一覧表関連.
+    .mother_report {
+      display: flex;
+      width: 100%;
+      flex-direction: column;
+    }
+
+    .alert_msg {
+      width: 100%;
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      /* 表示する行数を指定 */
+      -webkit-box-orient: vertical;
+      font-weight: 500;
+      margin-bottom: 5px;
+      font-size: 1.3em;
+      color: #000;
+      text-align: center;
+    }
+
+    .report_bg1 {
+      width: 100%;
+      background-color: #222831;
+      height: auto;
+      display: flex;
+      margin-bottom: 10px;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 10px;
+    }
+
+    .report_bg2 {
+      margin: 5px;
+      width: calc(100% - 10px);
+      height: auto;
+      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .report_msg {
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      /* 表示する行数を指定 */
+      -webkit-box-orient: vertical;
+      font-weight: 500;
+      margin-bottom: 10px;
+      font-size: 1.2em;
+      color: #000;
+      border-bottom: 1px solid #222831;
+    }
+
+    #modal_report {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      height: auto;
+      background: #fff;
+    }
+
+    //マスター画面の総合計時間.
+    .reportTotalWork {
+      display: flex;
+      width: 100%;
+      height: auto;
+      padding: 0 10px;
+      border-top: 2px solid #30475E;
+      background: #fff;
+    }
+
+    .report_form_title_div {
+      width: 40%;
+      height: 100%;
+      border-right: 2px solid #30475E;
+      padding: 10px 0;
+    }
+
+    //勤務時間区分.
+    #reportWorkStyle {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      height: auto;
+      padding: 10px 10px 0px 10px;
+      border-top: 2px solid #30475E;
+      background: #fff;
+    }
+
+    .reportWorkStyleTxt {
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      font-weight: 500;
+      margin-bottom: 10px;
+      font-size: 1.1em;
+      color: #000;
+      border-bottom: 1px solid #222831;
+    }
+
+    //フォーム関連.
+
+    .form_group {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: auto;
+      margin: 20px 0;
+      padding: 10px 10px;
+      border: 1px solid #000000;
+      box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 7px;
+      background: #fff;
+    }
+
+    .textId {
+      background: #;
+      font-weight: 400;
+      font-size: 25px;
+      height: 40px;
+      text-indent: 6px;
+    }
+
+    .form_title {
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: ;
+      /* 表示する行数を指定 */
+      -webkit-box-orient: vertical;
+      font-weight: 500;
+      margin-bottom: 5px;
+      font-size: 1.2em;
+    }
+
+    //総合計労働時間.
+    .totalWork {
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      /* 表示する行数を指定 */
+      -webkit-box-orient: vertical;
+      font-weight: 700;
+      margin-bottom: 5px;
+      font-size: 2em;
+      margin: auto 0 auto auto;
+    }
+
+    .report_form_title {
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      /* 表示する行数を指定 */
+      -webkit-box-orient: vertical;
+      font-weight: 500;
+      font-size: 2em;
+    }
+
+    .time_form {
+      display: flex;
+      flex-direction: row;
+    }
+
+    .time_colon {
+      font-size: 6vw;
+      vertical-align: bottom;
+    }
+
+    .form_dropdown {
+      width: 100%;
+      background: #efefef;
+      color: #000;
+      border: 1px solid #000000;
+      box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 3px;
+      font-family: Serif;
+      font-weight: 400;
+      font-size: 1.5em;
+      position: relative;
+    }
+
+    #end_div {
+      display: none;
+    }
+
+    #end_div.active {
+      display: flex;
+      animation-name: fadeInAnime;
+      animation-duration: 0.5s;
+      animation-fill-mode: forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeInAnime {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .num_div {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .num_div2 {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+    }
+
+    #num_suggest {
+      display: flex;
+      flex-direction: column;
+      background-color: #f9f9f9;
+      border: solid 1px;
+      border-top: none;
+      padding-bottom: 6px;
+      border-bottom-right-radius: 3px;
+      border-bottom-left-radius: 3px;
+      height: 120px;
+      overflow-y: scroll;
+    }
+
+    .num_suggest_option {
+      display: flex;
+      font-size: 1.2em;
+      font-weight: 500;
+      text-indent: 6px;
+      color: #000;
+    }
+
+    .form_textbox_num {
+      display: flex;
+      width: 70%;
+      padding: 8px 0;
+      background-color: #efefef;
+      border: 1px solid #000000;
+      border-top-left-radius: 3px;
+      border-right: none;
+      font-size: 1.2em;
+      font-weight: 500;
+      text-indent: 6px;
+      margin: 0 auto 0 0;
+    }
+
+    #work_num_name {
+      width: 30%;
+      background: #efefef;
+      color: #000;
+      border: 1px solid #000000;
+      border-left: none;
+      border-top-right-radius: 3px;
+      font-size: 1em;
+      font-weight: 500;
+      text-indent: 6px;
+      margin: 0 0 0 auto;
+    }
+
+    .form_textbox_num::placeholder {
+      color: #999;
+    }
+
+    .work_checkbox_label {
+      display: flex;
+      align-items: center;
+      gap: 0 .5em;
+      position: relative;
+      cursor: pointer;
+      margin: 5px 0;
+    }
+
+    .work_checkbox_label::before,
+    .work_checkbox_label:has(:checked)::after {
+      content: '';
+    }
+
+    .work_checkbox_label::before {
+      width: 17px;
+      height: 17px;
+      border-radius: 3px;
+      background-color: #e6edf3;
+    }
+
+    .work_checkbox_label:has(:checked)::before {
+      background-color: #F05454;
+    }
+
+    .work_checkbox_label:has(:checked)::after {
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      transform: rotate(45deg);
+      width: 5px;
+      height: 8px;
+      border: solid #fff;
+      border-width: 0 2px 2px 0;
+    }
+
+    .work_checkbox_label input {
+      display: none;
+    }
+
+    .work_checkbox_label_text {
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      /* 表示する行数を指定 */
+      -webkit-box-orient: vertical;
+      font-weight: 500;
+      font-size: 1.1em;
+    }
+
+    //ボタン部品.
+
+    .report_btn_group {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      margin: 20px 0 10px 0;
+      background: #fff;
+      align-items: center;
+      text-align: center;
+    }
+
+    .close_btn {
+      width: 45%;
+      padding: 15px 0;
+      background: #FFFFFF;
+      border: 2px solid #f81717;
+      box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .entry_btn {
+      width: 45%;
+      padding: 15px 0;
+      background: #f81717;
+      color: #fff;
+      margin: 0 0 0 auto;
+      box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 5px;
+      cursor: pointer;
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      /* 表示する行数を指定 */
+      -webkit-box-orient: vertical;
+    }
+
+    .del_btn {
+      width: 100%;
+      padding: 15px 0;
+      background: #FFFFFF;
+      border: 2px solid #222831;
+      box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #delete_btns {
+      display: none;
+    }
+
+    #entry_txt {
+      width: 100%;
+    }
+
+    .btn_text {
+      font-weight: 600;
+      font-size: 22px;
+      color: #f81717;
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      /* 表示する行数を指定 */
+      -webkit-box-orient: vertical;
+    }
+
+    //エラーメッセージ.
+    .error_msg {
+      margin-top: 10px;
+      font-weight: 400;
+      font-size: 15px;
+      color: #f81717;
+      display: flex;
+      width: 100%;
+      height: auto;
+    }
+
+
+    /*モーダルウィンドウスタイル作成終了ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー*/
+    /*ローディングスタイル作成ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー*/
+    #page_loading {
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      background: #464646de;
+      color: #fff;
+      z-index: 999;
+      backdrop-filter: blur(5px);
+    }
+
+    .wrapper {
+      width: 200px;
+      height: 60px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .circle {
+      width: 20px;
+      height: 20px;
+      position: absolute;
+      border-radius: 50%;
+      background-color: #fff;
+      left: 15%;
+      transform-origin: 50%;
+      animation: circle .5s alternate infinite ease;
+    }
+
+    @keyframes circle {
+      0% {
+        top: 60px;
+        height: 5px;
+        border-radius: 50px 50px 25px 25px;
+        transform: scaleX(1.7);
+      }
+
+      40% {
+        height: 20px;
+        border-radius: 50%;
+        ansform: scaleX(1);
+      }
+
+      100% {
+        top: 0%;
+      }
+    }
+
+    .circle:nth-child(2) {
+      left: 45%;
+      animation-delay: .2s;
+    }
+
+    .circle:nth-child(3) {
+      left: auto;
+      right: 15%;
+      animation-delay: .3s;
+    }
+
+    .shadow {
+      width: 20px;
+      height: 4px;
+      border-radius: 50%;
+      background-color: rgba(0, 0, 0, .5);
+      position: absolute;
+      top: 62px;
+      transform-origin: 50%;
+      z-index: -1;
+      left: 15%;
+      filter: blur(1px);
+      animation: shadow .5s alternate infinite ease;
+    }
+
+    @keyframes shadow {
+      0% {
+        transform: scaleX(1.5);
+      }
+
+      40% {
+        transform: scaleX(1);
+        opacity: .7;
+      }
+
+      100% {
+        transform: scaleX(.2);
+        opacity: .4;
+      }
+    }
+
+    .shadow:nth-child(4) {
+      left: 45%;
+      animation-delay: .2s
+    }
+
+    .shadow:nth-child(5) {
+      left: auto;
+      right: 15%;
+      animation-delay: .3s;
+    }
+
+    .wrapper span {
+      position: absolute;
+      top: 75px;
+      font-family: 'Lato';
+      font-size: 20px;
+      color: #fff;
+      left: 15%;
+    }
+
+    /*ローディングスタイル作成終了ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー*/
+
+    /* ページロード確認画面スタイル */
+    #page_road_popup {
+      display: none;
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      background: #464646de;
+      z-index: 9999;
+      backdrop-filter: blur(10px);
+    }
+
+    .popup_bg1 {
+      display: flex;
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+      margin: 10px;
+      background: #30475E;
+      width: calc(100% - 20px);
+      height: auto;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 3px;
+    }
+
+    .popup_bg2 {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      margin: 5px;
+      width: calc(100% - 10px);
+      background: #FFFFFF;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 3px;
+      padding: 1.4em 0;
+    }
+
+    #popup_text {
+      color: #30475E;
+      font-size: 1,5em;
+      font-weight: bold;
+      letter-spacing: .15em;
+    }
+
+    .popup_btn_group {
+      display: flex;
+      flex-direction: row;
+      width: calc(100% - 20px);
+      margin: 10px;
+      background: #fff;
+      align-items: center;
+      text-align: center;
+    }
+
+    .popup_back_btn {
+      font-size: 25px;
+      font-weight: 400;
+      width: 45%;
+      height: auto;
+      background: #fff;
+      padding: 8px 0;
+      color: #f81717;
+      box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 4px;
+      cursor: pointer;
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      border: 2px solid #f81717;
+    }
+
+    #popup_entry_btn {
+      font-size: 25px;
+      font-weight: 400;
+      width: 45%;
+      height: auto;
+      background: #f81717;
+      padding: 8px 0;
+      color: #fff;
+      margin: 0 0 0 auto;
+      box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 4px;
+      cursor: pointer;
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+    }
+
+    * 日報送信後確認画面スタイル作成終了 */
+
+  </style>
